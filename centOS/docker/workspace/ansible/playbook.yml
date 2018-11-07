@@ -1,0 +1,48 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  sudo: yes
+  tasks:
+    - name: Docker group should exist
+      group: name=docker state=present
+
+    - name: Vagrant should be a member of docker group
+      user: name=vagrant groups=docker state=present
+
+    - name: Docker old version should be removed
+      yum: 
+        name: 
+          - docker
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-selinux
+          - docker-engine-selinux
+          - docker-engine
+        state: absent
+
+    - name: Yum-utils should be installed
+      yum: 
+        name: 
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+
+    - name: Docker repo should be added
+      shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+      args: 
+        chdir: "/etc/yum.repos.d"
+        creates: docker-ce.repo
+
+    - name: Docker-ce should be installed
+      yum: name=docker-ce state=present
+
+    - name: Docker should be running
+      service: name=docker state=started enabled=yes
+
+    - name: docker-compose command should be installed
+      get_url: url=https://github.com/docker/compose/releases/download/1.14.0/docker-compose-Linux-x86_64 dest=/usr/local/bin/docker-compose mode=755

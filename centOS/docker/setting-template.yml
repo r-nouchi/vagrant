@@ -1,0 +1,4 @@
+proxy:
+  http: "http://<proxy-host>:<proxy-port>"
+  https: "http://<proxy-host>:<proxy-port>"
+  no-proxy: "no proxy host"
